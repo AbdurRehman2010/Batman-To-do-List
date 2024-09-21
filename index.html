@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batman To-Do List</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dark-overlay"></div>
+    <div class="container">
+        <header>
+            <h1><span>Batman</span> To-Do List</h1><br>
+        </header>
+        <div class="todo-input">
+            <input type="text" id="new-task" placeholder="Enter mission, Batman...">
+            <button id="add-task-btn" class="bat-btn">Add Mission</button>
+        </div>
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script >// Select DOM elements
+        const newTaskInput = document.getElementById('new-task');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const todoList = document.getElementById('todo-list');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        
+        // Load tasks from local storage on page load
+        document.addEventListener('DOMContentLoaded', loadTasks);
+        
+        // Add new task
+        addTaskBtn.addEventListener('click', function () {
+            const task = newTaskInput.value.trim();
+            if (task) {
+                addTask(task);
+                saveTask(task);
+                newTaskInput.value = '';
+            }
+        });
+        
+        // Add task function
+        function addTask(taskText) {
+            // Create task item
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${taskText}</span>
+                <div>
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">Delete</button>
+                </div>
+            `;
+        
+            // Add edit functionality
+            li.querySelector('.edit-btn').addEventListener('click', function () {
+                const newTaskText = prompt('Edit your task:', taskText);
+                if (newTaskText) {
+                    li.querySelector('span').textContent = newTaskText;
+                    updateTaskInStorage(taskText, newTaskText);
+                }
+            });
+        
+            // Add delete functionality
+            li.querySelector('.delete-btn').addEventListener('click', function () {
+                li.remove();
+                deleteTaskFromStorage(taskText);
+            });
+        
+            todoList.appendChild(li);
+        }
+        
+        // Save task to local storage
+        function saveTask(task) {
+            let tasks = localStorage.getItem('tasks')
+                ? JSON.parse(localStorage.getItem('tasks'))
+                : [];
+            tasks.push(task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // Load tasks from local storage
+        function loadTasks() {
+            let tasks = localStorage.getItem('tasks')
+                ? JSON.parse(localStorage.getItem('tasks'))
+                : [];
+            tasks.forEach((task) => {
+                addTask(task);
+            });
+        }
+        
+        // Update task in local storage
+        function updateTaskInStorage(oldTask, newTask) {
+            let tasks = JSON.parse(localStorage.getItem('tasks'));
+            tasks[tasks.indexOf(oldTask)] = newTask;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // Delete task from local storage
+        function deleteTaskFromStorage(task) {
+            let tasks = JSON.parse(localStorage.getItem('tasks'));
+            tasks = tasks.filter((t) => t !== task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        // Dark Mode Toggle
+        darkModeToggle.addEventListener('click', function () {
+            document.body.classList.toggle('dark-mode');
+        });
+        </script>
+</body>
+</html>
